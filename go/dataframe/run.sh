@@ -8,7 +8,7 @@ go mod init dataframe
 go mod tidy
 
 # build go executable
-go build -o http_df
+go build -o http_df -ldflags="-s -w"
 
 # run http_df server
 nohup ./http_df 2>&1 1>& log < /dev/null &
