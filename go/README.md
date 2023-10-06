@@ -110,6 +110,9 @@ hey http://localhost:8888
 
 # use 1k request and 100 concurrent clients:
 hey -n 1000 -c 100 http://localhost:8888
+
+# try harder with more concurrent clients
+hey -n 1000 -c 200 http://localhost:8888
 ```
 
 Step 6: work with 3rd party packages (`gin/server.go`):

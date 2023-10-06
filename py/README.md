@@ -62,4 +62,7 @@ hey http://localhost:5000
 
 # use 1k requests and 100 concurrent clients
 hey -n 1000 -c 100 http://localhost:5000
+
+# try harder with more concurrent clients
+hey -n 1000 -c 200 http://localhost:5000
 ```
