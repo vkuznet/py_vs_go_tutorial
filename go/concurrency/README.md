@@ -44,6 +44,9 @@ go tool pprof -http :8080  ./web cpu.out
 go tool trace trace.out
 ```
 
+Here is how you should read the benchmark results
+![benchmark](benchmark_results.png)
+
 ### References
 - [Go benchmarks](https://www.practical-go-lessons.com/chap-34-benchmarks)
 - [practical command](https://gist.github.com/arsham/bbc93990d8e5c9b54128a3d88901ab90)
