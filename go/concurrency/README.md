@@ -2,10 +2,15 @@
 
 Build package:
 ```
+# (optional): if there is no go.mod and go.sum you will do
 go mod init web
 go mod tidy
+
+# and build executable as simple as
+go build
 ```
-And, test with
+
+The new `web` server can be tested as following:
 ```
 # setup DBS_URL
 export DBS_URL=https://.../dbs/int/global/DBSReader
