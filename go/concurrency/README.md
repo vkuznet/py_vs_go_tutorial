@@ -8,6 +8,7 @@ go mod tidy
 And, test with
 ```
 # setup DBS_URL
+export DBS_URL=https://.../dbs/int/global/DBSReader
 
 # server
 ./web
