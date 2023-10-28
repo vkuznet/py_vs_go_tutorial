@@ -1,6 +1,14 @@
 Basic tutorial to outline pros/cons of development simple data services using
 python and go languages.
 
+Please refer to specific topics below which explains how it is done in Go:
+- [concurrency](go/concurrency/README.md)
+- [memory](go/memory/README.md)
+- [gin](go/gin/README.md)
+- [dataframe](go/dataframe/README.md)
+- [syntax](go/syntax/README.md)
+- [tests](tests/README.md)
+
 ### hello world web server
 Please see corresponding areas `py/http_py.py` for Python flask based 
 web server and `go/http_hello.go` for Go (standard library) web
