@@ -6,34 +6,24 @@ import (
 	"io"
 	"log"
 	"os"
+	"reflect"
+	"runtime"
 
-	"github.com/shirou/gopsutil/v3/mem"
-	"github.com/struCoder/pidusage"
+	validator "github.com/go-playground/validator/v10"
 )
 
-func sysInfoStat() *pidusage.SysInfo {
-	sysInfo, err := pidusage.GetStat(os.Getpid())
-	if err != nil {
-		log.Fatal(err)
-	}
-	//     fmt.Printf("# sysInfo %+v\n", sysInfo)
-	return sysInfo
-}
-
-func mem_usage() (*mem.VirtualMemoryStat, *mem.SwapMemoryStat) {
-	//     process, perr := process.NewProcess(int32(os.Getpid()))
-	m, _ := mem.VirtualMemory()
-	s, _ := mem.SwapMemory()
-	//     fmt.Printf("# Virtual memory %+v\n# Swap memory: %+v\n", m, s)
-	return m, s
+func memUsage(m1, m2 *runtime.MemStats) {
+	fmt.Printf("Sys: %d (MB) total alloc %d (MB), heap alloc %d (MB)\n",
+		(m2.Sys-m1.Sys)/(1024*1024),
+		(m2.TotalAlloc-m1.TotalAlloc)/(1024*1024),
+		(m2.HeapAlloc-m1.HeapAlloc)/(1024*1024))
 }
 
 func readJSON(dst string) {
-	mem_usage()
-	s0 := sysInfoStat()
 	fname := os.Args[1]
 	fileInfo, _ := os.Stat(fname)
-	m0, _ := mem_usage()
+	var r0, r1 runtime.MemStats
+
 	fmt.Printf("# File %s size %d (MB)\n", fname, fileInfo.Size()/(1024*1024))
 	file, err := os.Open(fname)
 	if err != nil {
@@ -46,24 +36,37 @@ func readJSON(dst string) {
 		log.Fatal(err)
 	}
 	if dst == "map" {
+		runtime.ReadMemStats(&r0)
 		var data map[string]any
 		err = json.Unmarshal(body, &data)
+		runtime.ReadMemStats(&r1)
+		t := reflect.TypeOf(data)
+		fmt.Printf("Data %T, %d bytes\n", data, t.Size())
 	} else {
+		runtime.ReadMemStats(&r0)
 		var data Data
 		err = json.Unmarshal(body, &data)
+		runtime.ReadMemStats(&r1)
+		if err == nil {
+			validate := validator.New(validator.WithRequiredStructEnabled())
+			// explain data struct validation and different scope for err variable
+			if err := validate.Struct(data); err != nil {
+				log.Fatal(err)
+			}
+		}
+		t := reflect.TypeOf(data)
+		fmt.Printf("Data %T, %d bytes\n", data, t.Size())
+		//         fmt.Printf("JSON data:\n%+v\n", data)
 	}
 	if err != nil {
 		log.Fatal(err)
 	}
-	m1, _ := mem_usage()
-	fmt.Printf("### Used memory by gopsutil to load JSON %d (MB)\n", (m1.Used-m0.Used)/(1024*1024))
-	s1 := sysInfoStat()
-	fmt.Printf("### Used memory by pidusage to load JSON %v (MB)\n", (s1.Memory-s0.Memory)/(1024*1024))
+	memUsage(&r0, &r1)
 }
 
 func main() {
-	fmt.Println("### read JSON into generic map")
+	fmt.Println("\n### read JSON into generic map")
 	readJSON("map")
-	fmt.Println("### read JSON into data struct")
+	fmt.Println("\n### read JSON into data struct")
 	readJSON("data")
 }
