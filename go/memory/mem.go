@@ -28,7 +28,7 @@ func mem_usage() (*mem.VirtualMemoryStat, *mem.SwapMemoryStat) {
 	return m, s
 }
 
-func main() {
+func readJSON(dst string) {
 	mem_usage()
 	s0 := sysInfoStat()
 	fname := os.Args[1]
@@ -45,8 +45,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var data map[string]any
-	err = json.Unmarshal(body, &data)
+	if dst == "map" {
+		var data map[string]any
+		err = json.Unmarshal(body, &data)
+	} else {
+		var data Data
+		err = json.Unmarshal(body, &data)
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -54,4 +59,11 @@ func main() {
 	fmt.Printf("### Used memory by gopsutil to load JSON %d (MB)\n", (m1.Used-m0.Used)/(1024*1024))
 	s1 := sysInfoStat()
 	fmt.Printf("### Used memory by pidusage to load JSON %v (MB)\n", (s1.Memory-s0.Memory)/(1024*1024))
+}
+
+func main() {
+	fmt.Println("### read JSON into generic map")
+	readJSON("map")
+	fmt.Println("### read JSON into data struct")
+	readJSON("data")
 }
