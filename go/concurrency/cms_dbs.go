@@ -105,6 +105,8 @@ func DBSHandler(w http.ResponseWriter, r *http.Request) {
 	records := getDatasets(dataset)
 	if action == "concurrent" {
 		concurrentFunction(records)
+	} else if action == "concurrent_response" {
+		concurrentResponses(records)
 	} else {
 		sequentialFunction(records)
 	}
@@ -117,6 +119,7 @@ func timing(start time.Time, msg string) {
 	fmt.Printf("%s elapsed time %v\n", msg, time.Since(start))
 }
 
+// helper function to show how to process HTTP responses sequentially
 func sequentialFunction(records []Record) {
 	defer timing(time.Now(), "sequential")
 	for _, rec := range records {
@@ -126,6 +129,7 @@ func sequentialFunction(records []Record) {
 	}
 }
 
+// helper function to show how to process HTTP responses concurrently and wait for all of them to finish
 func concurrentFunction(records []Record) {
 	defer timing(time.Now(), "concurrent")
 	var wg sync.WaitGroup
@@ -142,6 +146,60 @@ func concurrentFunction(records []Record) {
 	}
 	// wait for all goroutines to complete their job
 	wg.Wait()
+}
+
+// Response represents HTTP response
+type Response struct {
+	Url  string
+	Body []byte
+}
+
+// concurrent function to show how to process HTTP responses concurrently and collect them separately
+func concurrentResponses(records []Record) {
+	defer timing(time.Now(), "concurrent_response")
+	out := make(chan Response)
+	defer close(out)
+	umap := map[string]int{}
+	for _, rec := range records {
+		msg := fmt.Sprintf("%s call", rec.Dataset)
+		rurl := fmt.Sprintf("%s/datasets?dataset=%s", dbsUrl, rec.Dataset)
+		umap[rurl] = 1
+		go func(url, m string, ch chan<- Response) {
+			defer timing(time.Now(), m)
+			body := httpRequest(url)
+			ch <- Response{Url: url, Body: body}
+		}(rurl, msg, out)
+		/*
+			// PLEASE NOTE: this implementation may not lead to desired results as
+			// goroutine schedule can be slower than entire function execution time
+			// and code will break with closed channel error
+			go func() {
+				msg := fmt.Sprintf("%s call", rec.Dataset)
+				defer timing(time.Now(), msg)
+				rurl := fmt.Sprintf("%s/datasets?dataset=%s", dbsUrl, rec.Dataset)
+				umap[rurl] = 1
+				body := httpRequest(url)
+				out <- Response{Url: url, Body: body}
+			}()
+		*/
+	}
+	exit := false // controls when we'll exit loop below when we'll collect all responses
+	for {
+		select {
+		case r := <-out:
+			fmt.Printf("%s\n%+v", r.Url, string(r.Body))
+			delete(umap, r.Url) // remove Url from map
+		default:
+			if len(umap) == 0 {
+				exit = true
+			}
+			time.Sleep(time.Duration(10) * time.Millisecond) // wait for response
+		}
+		if exit {
+			break
+		}
+	}
+	fmt.Println("### all HTTP responses are processed")
 }
 
 func initDBS() {
