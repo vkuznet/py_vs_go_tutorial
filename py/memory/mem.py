@@ -9,7 +9,7 @@ def mem_usage():
     pid = os.getpid()
     proc = psutil.Process(pid)
     mem = proc.memory_full_info().uss/(1024*1024)
-    print(mem)
+    print("process pid=%s memory=%s (MB)" % (pid, mem))
 
 mem_usage()
 fname = sys.argv[1]
