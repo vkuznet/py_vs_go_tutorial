@@ -1,4 +1,13 @@
 ### How to build and test Python data-service
+Here is wat to setup necessary environemt
+```
+# deployment procedure
+python -m venv venv
+source venv/bin/activat
+pip install --upgrade pip
+pip install flask
+flask --app http_hello run
+```
 
 Step 1: write your code (file `http_hello.py`):
 ```

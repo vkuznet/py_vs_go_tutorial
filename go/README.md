@@ -15,5 +15,6 @@ tar xfz go1.21.3.linux-amd64.tar.gz
 export GOROOT=$PWD/go
 export PATH=$PATH:$GOROOT/bin
 go version
+go env
 go doc http
 ```

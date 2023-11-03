@@ -1,4 +1,12 @@
 ### How to build and test Go data-service
+GoLang environemnt
+```
+# start the server
+go run http_hello.go
+
+# to measure its performance use
+hey http://localhost:8888
+```
 
 Step 1: write your code (file `http_hello.go`):
 ```
