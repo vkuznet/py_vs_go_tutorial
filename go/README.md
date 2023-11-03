@@ -1,3 +1,13 @@
+### Installation instructions
+```
+curl -ksLO https://go.dev/dl/go1.21.3.linux-amd64.tar.gz
+tar xfz go1.21.3.linux-amd64.tar.gz
+export GOROOT=$PWD/go
+export PATH=$PATH:$GOROOT/bin
+go version
+go doc http
+```
+
 ### How to build and test Go data-service
 
 Step 1: write your code (file `http_hello.go`):
@@ -89,10 +99,10 @@ Step 3: run your service
 Step 4: migrate your service to another node:
 ```
 # either package your service or copye all codebase via ssh
-scp http_hello vek3@lnx231.classe.cornell.edu:~/tutorial/go
+scp http_hello user@host:~/tutorial/go
 
 # ssh to the node and run it
-ssh lnx231
+ssh host
 cd ~/tutorial/go
 ./http_hello
 ```
