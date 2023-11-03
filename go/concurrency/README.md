@@ -19,6 +19,8 @@ export DBS_URL=https://.../dbs/int/global/DBSReader
 ./web
 # or run concurrent calls
 ./web -action concurrent
+# or run concurrent calls to process responses
+./web -action concurrent_response
 
 # client
 curl "http://localhost:8888/dbs?dataset=/ZMM*"
