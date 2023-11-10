@@ -34,3 +34,7 @@ du -ksh .
 echo
 echo "check the service using curl"
 curl -v http://localhost:8888/data
+
+echo
+echo "perform clean-up"
+ps auxww | grep http_df | grep -v grep | awk '{print "kill -9 "$2""}' | /bin/sh
